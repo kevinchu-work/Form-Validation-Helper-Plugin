@@ -1,0 +1,45 @@
+{
+  "name": "Form-Validation-Helper",
+  "version": "1.0.0",
+  "description": "jQuery Plugins of Form Value Validation Helper",
+  "repository": {
+    "type": "git",
+    "url": "https://bitbucket.org/ideasparks-hk/form-validation-helper/"
+  },
+  "author": {
+    "name": "Kevin",
+    "url": "https://www.ideasparks.com.hk"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "build": "gulp",
+    "clean": "rm -rdf dist/*; rm -dfr maps/*;",
+    "rebuild": "yarn clean; yarn build;",
+    "deep-rebuild": "rm -dfr node_modules; rm yarn.lock; yarn install; yarn rebuild"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.7",
+    "@babel/polyfill": "^7.8.7",
+    "@babel/preset-env": "^7.8.7",
+    "autoprefixer": "^9.7.4",
+    "cssnano": "^4.1.10",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-cli": "^2.2.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-minify": "^3.1.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-postcss": "^8.0.0",
+    "gulp-replace": "^1.0.0",
+    "gulp-sass": "^4.0.2",
+    "gulp-sourcemaps": "^2.6.5"
+  },
+  "browserslist": [
+    "defaults",
+    "IE >= 11"
+  ],
+  "dependencies": {
+    "uuid": "^7.0.2"
+  }
+}

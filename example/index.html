@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Form Validation Helper jQuery Plugin Example</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon"> <!-- Skip favicon -->
+
+  <link rel="stylesheet" href="style/jQuery.FormHelper.core.css">
+  <link rel="stylesheet" href="style/example.css">
+</head>
+<body>
+  <h1>Form with submit button</h1>
+  <section>
+
+    <div class="greeting">
+      <span class="compulsory">*</span> is compulsory.
+    </div>
+
+    <form method="POST" id="contactForm">
+
+      <div class="input-group">
+        <label for="input1">Basic Input Field with single Error [Required] <span class="compulsory">*</span></label>
+        <input type="text" id="input1" name="input1" placeholder="Basic Text Input" required />
+        <error role="alert">Above field is required</error>
+        <!-- <error role="alert">This is testing error message and SHOULDN'T appear</error> -->
+      </div>
+
+      <div class="input-group">
+        <label for="input2">Simple Input Field with multi rules [Email & Required] <span class="compulsory">*</span></label>
+        <input type="email" id="input2" name="input2" placeholder="person@email.com" required />
+        <errorGroup errorFor="input2">
+          <error data-rule="required" role="alert">
+            Please enter your email address
+          </error>
+          <error data-rule="email" role="alert">
+            Seems something is missing from your email address
+          </error>
+          <error data-rule="required" role="alert">
+            [Duplicated for testing] Please enter your email address
+          </error>
+        </errorGroup>
+      </div>
+
+      <div class="input-group">
+        <label for="tel">Phone no. (optional)</label>
+        <input type="tel" id="tel" name="tel" placeholder="+852 ****-****" />
+        <error data-rule="tel" role="alert">
+          Phone number is incorrect
+        </error>
+      </div>
+
+      <div class="input-group">
+        <label for="msg">Message</label>
+        <textarea name="msg" id="" rows="4" required></textarea>
+        <error role="alert">
+          Please tell us more about your needs
+        </error>
+      </div>
+
+      <div class="buttonPanel">
+        <button type="submit" class="primaryBtn">Send message</button>
+      </div>
+
+    </form>
+  </section>
+
+
+	<!-- JS Plugins Initial -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+	<script src="js/jQuery.FormHelper.es6.js"></script>
+	<script>
+    $("#contactForm").FormHelper({
+      disableSubmitBtn : false,
+			errorHurdling    : false,
+			DEBUG_MODE       : true
+		});
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,35 @@
+form {
+
+  %errorTxtStyle {
+    color: red;
+    line-height: 1.5;
+  }
+
+  error, .error {
+    display: none;
+    @extend %errorTxtStyle;
+
+    &.errorShow {
+      display: block;
+    }
+  }
+
+  *[aria-invalid="true"] {
+    border: 2px solid red;
+
+    // Developer: to be safe, multi error message should be wrapped inside <errorGroup>
+    //            so it is "+ .error"
+    & + error, & + .error {  display: block; }
+  }
+
+  // Display error message based on JS decision
+  errorGroup error,
+  errorGroup .error {
+    display: none;
+
+    &.errorShow {
+      display: block;
+    }
+  }
+
+}
