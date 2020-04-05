@@ -19,17 +19,26 @@ form {
 
     // Developer: to be safe, multi error message should be wrapped inside <errorGroup>
     //            so it is "+ .error"
-    & + error, & + .error {  display: block; }
-  }
-
-  // Display error message based on JS decision
-  errorGroup error,
-  errorGroup .error {
-    display: none;
-
-    &.errorShow {
-      display: block;
+    & + error, & + .error {
+      &:first-child {
+        display: block;
+      }
     }
   }
 
+
+  label {
+    &.compulsory_inline {
+      &::after {
+        content: ' *';
+        color: orangered;
+        display: inline;
+      }
+    }
+  }
+
+}
+
+.compulsory {
+  color: orangered;
 }

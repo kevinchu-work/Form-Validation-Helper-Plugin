@@ -41,8 +41,8 @@
     DEBUG_MODE : false,
   };
 
-  const $window = $(window);
-  const $document = $(document);
+  // const $window = $(window);
+  // const $document = $(document);
 
   // p = placeholder, together with pluginName
   const p = {};
@@ -59,7 +59,7 @@
   // TODO: addition tag & type needs to be supported
   const supportedTag = ["INPUT", "TEXTAREA"/* , "SELECT" */];
   const supportedType = ["EMAIL", "TEL"];
-  const nameSpaceKey = "formHelper_";
+  const nameSpaceKey = pluginName.replace(/^\w/, c => c.toLowerCase())+"_";
 
   let $el;
 
@@ -79,7 +79,7 @@
 
       // Preparing
       this.pairingErrorAndFields();
-      DEBUG(pluginName+' initialised', this.el);
+      DEBUG(pluginName+"("+$el.attr('id')+")"+' initialised');
 
       // this.eachField_forDebugging();
 
@@ -92,8 +92,8 @@
         $el.submit((e) => {
           e.preventDefault();
 
-          this.resetFormError();
-          this.validationLoop();
+          this.resetFormError(e);
+          this.validationLoop(e);
 
           return false;
         })
@@ -105,7 +105,10 @@
     /**
      * Perform a full test on specified form fields
      */
-    validationLoop() {
+    validationLoop(e) {
+      let $el = $(e.target);
+
+      settings.DEBUG_MODE && console.log("Validation Loop: "+$el.attr("id"));
 
       $el.find(supportedTag.join(',')).each((idx, e) => {
         let rules = $(e).data(nameSpaceKey+"rules");
@@ -113,18 +116,18 @@
 
         rules.forEach( r => {
           let result = this.validationDelegator(val, r);
-          console.log("Testing['"+val+"' with rule: '"+r+"'] = " + result);
+          console.log("Testing[#"+$(e).attr("id")+": '"+val+"' with rule: '"+r+"'] = " + result);
 
           if (!result) {
             // Error show up
             let idKey = $(e).attr("id");
             $(e).attr("aria-invalid", true);
 
-            let errors = $('error[errorFor="'+idKey+'"], .error[errorFor="'+idKey+'"]');
+            let errors = $el.find('error[errorFor="'+idKey+'"], .error[errorFor="'+idKey+'"]');
             if (errors.length == 1) {
               errors.addClass("errorShow");
             } else if (errors.length > 1) {
-              $('error[data-rule="'+r+'"], .error[data-rule="'+r+'"]').addClass("errorShow");
+              $el.find('error[data-rule="'+r+'"], .error[data-rule="'+r+'"]').addClass("errorShow");
             } else {
               ERROR("Error message disappeared! Something wrong happened");
             }
@@ -164,6 +167,7 @@
         return validateTel(val.trim());
       } else {
         ERROR("Rule: "+r+" is not supported");
+        return true;
       }
       return false;
     }
@@ -173,7 +177,7 @@
     pairingErrorAndFields() {
 
       // Gather all rules & store in Form Fields for future use
-      $(".error, error").each((idx, e) => {
+      $el.find(".error, error").each((idx, e) => {
 
         let inputTag = this.getTargetInputField(e);
         if (inputTag) {
@@ -245,7 +249,7 @@
 
       // Return the actual input field
       if (hasErrorFor) {
-        let idKey = "#" + $(e).attr("errorFor");
+        let idKey = "#" + $(e).attr("errorFor") || "";
         return $(idKey);
 
       } else if (afterInput) {
@@ -276,12 +280,13 @@
 
     }
 
-    resetFormError() {
+    resetFormError(e) {
+      let $el = $(e.target);
       $el.find(supportedTag.join(',')).attr("aria-invalid", false);
       // $el.find(supportedTag.join(',')).each(() => {
       //   $(this).attr("aria-invalid", false);
       // });
-      $("error, .error").removeClass("errorShow");
+      $el.find("error.errorShow, .error.errorShow").removeClass("errorShow");
     }
 
     // TODO: replease the following method by npm UUID
@@ -303,6 +308,8 @@
     // End of UUID_v4
   }
 
+  // Clearup for bug trigger
+  $el = undefined;
   // Avoid duplicated instantiations ~~~~~~~~~~~~~~~~~~~~~~
   $.fn[pluginName] = function(options) {
     return this.each(function () {
