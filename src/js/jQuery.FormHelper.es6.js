@@ -51,6 +51,11 @@
   const DEBUG   = (...params) => { settings.DEBUG_MODE && console.info ( "DEBUG:\n\t"   + params.toString() + "\n---"); }
   const ERROR   = (...params) => { settings.DEBUG_MODE && console.error( "ERROR:\n\t"   + params.toString() + "\n---"); }
   const WARNING = (...params) => { settings.DEBUG_MODE && console.warn ( "WARNING:\n\t" + params.toString() + "\n---"); }
+  const isJSON  = (str) => {
+    let jsonObj = undefined;
+    try { jsonObj = JSON.parse(str); } catch (e) { return undefined; }
+    return jsonObj;
+  }
 
   // Regex Test Methods
   const validateEmail = (emailAddrString) => (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(emailAddrString));
@@ -58,7 +63,7 @@
 
   // TODO: addition tag & type needs to be supported
   const supportedTag = ["INPUT", "TEXTAREA"/* , "SELECT" */];
-  const supportedType = ["EMAIL", "TEL"];
+  const supportedType = ["EMAIL", "TEL", "NUMBER"];
   const nameSpaceKey = pluginName.replace(/^\w/, c => c.toLowerCase())+"_";
 
   let $el;
@@ -116,14 +121,14 @@
 
         rules.forEach( r => {
           let result = this.validationDelegator(val, r);
-          console.log("Testing[#"+$(e).attr("id")+": '"+val+"' with rule: '"+r+"'] = " + result);
+          console.log("Testing["+$(e).attr("name")+": '"+val+"' with rule: '"+r+"'] = " + result);
 
           if (!result) {
             // Error show up
-            let idKey = $(e).attr("id");
+            let nameKey = $(e).attr("name");
             $(e).attr("aria-invalid", true);
 
-            let errors = $el.find('error[errorFor="'+idKey+'"], .error[errorFor="'+idKey+'"]');
+            let errors = $el.find('error[errorFor="'+nameKey+'"][data-rule="'+r+'"], .error[errorFor="'+nameKey+'"][data-rule="'+r+'"]');
             if (errors.length == 1) {
               errors.addClass("errorShow");
             } else if (errors.length > 1) {
@@ -157,7 +162,7 @@
       //   return false;
       // }
 
-      let r = rule.trim().toLocaleLowerCase();
+      let r = rule.toLocaleLowerCase().replace(/\s/g, "");
 
       if (r === "required") {
         return (val.trim().length > 0);
@@ -165,6 +170,9 @@
         return validateEmail(val.trim());
       } else if (r === "tel") {
         return validateTel(val.trim());
+      } else if (r.includes("max:")) {
+        return val.trim() <= r.split(":")[1];
+        // return false; //val.trim()
       } else {
         ERROR("Rule: "+r+" is not supported");
         return true;
@@ -182,19 +190,17 @@
         let inputTag = this.getTargetInputField(e);
         if (inputTag) {
 
-          // Pairing by ID string
-          let inputIDStr = $(inputTag).attr("id") || this.generateUUID_v4();
-          $(e).data("errorFor", inputIDStr).attr("errorFor", inputIDStr);
-          // if (settings.DEBUG_MODE) {
-          //   $(e).attr("errorFor", inputIDStr);
-          // }
+          // Pairing by NAME tag
+          let inputNameStr = $(inputTag).attr("name") || this.generateUUID_v4();
+          $(e).data("errorFor", inputNameStr).attr("errorFor", inputNameStr);
 
           // Copy rules into input fields
           // 1. gathering all rules into single list (single source of truth)
           let errorRules = $(e).attr("data-rule") ? $(e).attr("data-rule").toLowerCase().split(',') : [];
           let rulesArr = $(inputTag).data(nameSpaceKey+"rules") || [];
-          // TODO: regex rules
-          let finalRules = [...new Set(rulesArr.concat(errorRules))];
+          let finalRules = [...new Set(rulesArr.concat(errorRules))];  //Array
+          // finalRules = finalRules.map((e) => { return e.replace(/\s/g, ""); /*.trim();*/ });  // remove all spaces
+          // let finalRules = $.extend({}, errorRules, rulesJson); // JSON
 
           $(inputTag).data(nameSpaceKey+"rules", finalRules);
           if (settings.DEBUG_MODE) {
@@ -207,10 +213,10 @@
             $(inputTag).prop("required", true);
           }
 
-          // Warning if input field has no ID
-          if ( ! $(inputTag).attr("id")) {
-            $(inputTag).attr("id", inputIDStr);
-            WARNING("Form field missing ID attribute, generated an UUID instead ["+inputIDStr+"]");
+          // Warning if input field has no NAME tag
+          if ( ! $(inputTag).attr("name")) {
+            $(inputTag).attr("name", inputNameStr);
+            WARNING("Form field missing 'NAME' attribute, generated an UUID instead ["+inputNameStr+"]");
           }
 
         }
@@ -249,15 +255,15 @@
 
       // Return the actual input field
       if (hasErrorFor) {
-        let idKey = "#" + $(e).attr("errorFor") || "";
-        return $(idKey);
+        let nameKey = "[name='" + $(e).attr("errorFor") + "']" || "";
+        return $(nameKey);
 
       } else if (afterInput) {
         return $(e).prev();
 
       } else if (underErrorGroupWithForKey) {
-        let idKey = "#" + $(e).parent().attr("errorFor");
-        return $(idKey);
+        let nameKey = "[name='" + $(e).parent().attr("errorFor") + "']";
+        return $(nameKey);
 
       } else if (underErrorGroupAfterInput) {
         return $(e).parent().prev();
@@ -275,7 +281,7 @@
       // TODO: Move all debug logic to this umbrella
       $(supportedTag.join(',')).each((idx, e) => {
         let rules = $(e).data(nameSpaceKey+"rules") || [];
-        settings.DEBUG_MODE && console.log($(e).attr("id"), rules);
+        settings.DEBUG_MODE && console.log($(e).attr("name"), rules);
       });
 
     }

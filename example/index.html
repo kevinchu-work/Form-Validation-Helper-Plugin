@@ -80,7 +80,7 @@
     <form id="form2" method="POST">
       <div class="errorWrapper">
         <error errorFor="input2a" data-rule="required">Simple text 2A is compulsory</error>
-        <error errorFor="input2b" data-rule="{'max':3}">Simple text 2B: At least 3 char</error>
+        <error errorFor="input2b" data-rule=' max : 3 '>Simple text 2B: At least 3 char</error>
         <error errorFor="input2b" data-rule="required">Simple text 2B is compulsory</error>
       </div>
 
@@ -90,7 +90,7 @@
       </div>
 
       <div class="input-group">
-        <label for="input2b">Simple text - 2B</label>
+        <label for="input2b" class="compulsory_inline">Simple text - 2B</label>
         <input type="text" name="input2b" id="input2b">
       </div>
 
